@@ -1,8 +1,5 @@
-IF OBJECT_ID('all_data', 'U') IS NOT NULL
-    DROP TABLE all_data;
-GO
-
-create table all_data (
+CREATE TABLE all_data (
+Row_ID         INT IDENTITY(1,1) PRIMARY KEY,  -- auto increment, starts at 1
 Order_ID       varchar(100),	
 Order_Date     datetime,
 Ship_Date      datetime,
@@ -25,3 +22,6 @@ Discount	   decimal,
 Profit         decimal
 );
 GO
+
+SELECT * FROM all_data
+
