@@ -1,3 +1,13 @@
+USE master;
+GO
+--Create the database and the table  
+CREATE DATABASE sales;
+GO
+
+USE sales;
+GO
+
+--load the sales data from the folder right to the database and add Row_ID column as a primary key
 CREATE TABLE all_data (
 Row_ID         INT IDENTITY(1,1) PRIMARY KEY,  -- auto increment, starts at 1
 Order_ID       varchar(100),	
