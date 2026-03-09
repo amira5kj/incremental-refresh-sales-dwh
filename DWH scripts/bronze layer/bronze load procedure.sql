@@ -1,44 +1,41 @@
 /*
 ===============================================================================
-Stored Procedure: Load Bronze Layer (From Database to Bronze)
+Stored Procedure:Incremental Load To Bronze Layer (From Database to Bronze)
 ===============================================================================
 Script Purpose:
-    This stored procedure loads data into the 'bronze' schema from  From the Database. 
-    It performs the following actions:
-    - Truncates the bronze tables before loading data.
-Parameters:
-    None. 
-	  This stored procedure does not accept any parameters or return any values.
-
-Usage Example:
-    EXEC bronze.load_bronze;
+-- Only inserts rows that don't already exist in bronze
+-- using row_id as the unique identifier
 ===============================================================================
 */
-CREATE OR ALTER bronze.load_bronze AS 
+EXEC bronze.load_bronze 
+
+CREATE OR ALTER PROCEDURE bronze.load_bronze AS 
 BEGIN
-        DECLARE @start_time DATETIME,@end_time DATETIME;
-        SET @start_time=GETDATE();
+    DECLARE @start_time DATETIME,@end_time DATETIME;
+    SET @start_time=GETDATE();
 
-		PRINT '================================================';
-		PRINT 'Loading Bronze Layer';
-		PRINT '================================================';
-		PRINT '>> Truncating Table: bronze.sales';
-		TRUNCATE TABLE bronze.sales;
-		PRINT '>> Inserting Data Into: bronze.sales';
+	PRINT '================================================';
+	PRINT 'Inserting into Bronze Layer';
+	PRINT '================================================';
 
-        INSERT INTO bronze.sales(
-            Order_ID,Order_Date,Ship_Date,Ship_Mode,Customer_ID,
-            Customer_Name,Segment,Country,City,State,Postal_Code,
-            Region,Product_ID,Category,Sub_Category,Product_Name,
-            Sales,Quantity,Discount,Profit
-        )
-        SELECT
-            Order_ID,Order_Date,Ship_Date,Ship_Mode,Customer_ID,
-            Customer_Name,Segment,Country,City,State,Postal_Code,
-            Region,Product_ID,Category,Sub_Category,Product_Name,
-            Sales,Quantity,Discount,Profit
-        FROM all_data
+    INSERT INTO bronze.sales(
+        Row_ID,Order_ID,Order_Date,Ship_Date,Ship_Mode,Customer_ID,
+        Customer_Name,Segment,Country,City,State,Postal_Code,
+        Region,Product_ID,Category,Sub_Category,Product_Name,
+        Sales,Quantity,Discount,Profit
+    )
+    SELECT
+        Row_ID,Order_ID,Order_Date,Ship_Date,Ship_Mode,Customer_ID,
+        Customer_Name,Segment,Country,City,State,Postal_Code,
+        Region,Product_ID,Category,Sub_Category,Product_Name,
+        Sales,Quantity,Discount,Profit
+    FROM all_data s
+    WHERE NOT EXISTS (
+    SELECT 1
+    FROM bronze.sales b
+    WHERE b.Row_ID= s.Row_ID   -- if Row_ID already in bronze > skip it
+    );
 
-        SET @end_time=GETDATE()
-		PRINT '>> Load Duration: ' + CAST(DATEDIFF(second, @start_time, @end_time) AS NVARCHAR) + ' seconds';
+    SET @end_time=GETDATE()
+	PRINT '>> Load Duration: ' + CAST(DATEDIFF(second, @start_time, @end_time) AS NVARCHAR) + ' seconds';
 END
