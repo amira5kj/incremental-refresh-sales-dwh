@@ -18,14 +18,14 @@ from datetime import datetime
 from sqlalchemy import create_engine, text
 
 # 1. CONFIGURATION  
-SALES_FOLDER = r"D:\1-data analysis\Second project\sales"
+SALES_FOLDER = r" "
 
 # SQL Server connection string
 DB_CONNECTION = (
-    "mssql+pyodbc://@AMORA\\SQLEXPRESS/sales"
-    "?driver=ODBC+Driver+17+for+SQL+Server"
-    "&trusted_connection=yes"
-    "&TrustServerCertificate=yes"
+    "mssql+pyodbc: "
+    "?driver= "
+    "&trusted_connection= "
+    "&TrustServerCertificate= "
 )
 
 TABLE_NAME = "all_data"   # Name of the table in the database
